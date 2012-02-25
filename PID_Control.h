@@ -7,7 +7,7 @@
 typedef struct _PID_ {//keeps track of a specific PID control's parameters and data
 	int	i;
 	double	errSum[8],
-		lastInput,
+		lastError,
 		kp,
 		ki,
 		kd;
@@ -20,6 +20,6 @@ void init_PID(PID *p, double Kp, double Ki, double Kd);//initializes the p i and
 void reset_PID(PID *p);//zero out last readings.
 
 /* Compute output of PID control based on input and setpoint. must be called often for greater accuracy */
-double Compute(PID *p, double Input, double Setpoint);
+double Compute(PID *p, double error);
 
 #endif
