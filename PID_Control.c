@@ -20,10 +20,9 @@ void reset_PID(PID *p){
 	clock_gettime(CLOCK_REALTIME, &(p->lastTime));
 }
 
-double Compute(PID *p, double Input, double Setpoint) {//this method must be called repetitively, either regularly or irregularly
+double Compute(PID *p, double error) {//this method must be called repetitively, either regularly or irregularly
 	//declare variables:
-	double 	error,
-		dInput,
+	double  dError,
 		sum,
 		Output,
 		dt;
@@ -39,9 +38,9 @@ double Compute(PID *p, double Input, double Setpoint) {//this method must be cal
 	if(dt < 0.0) dt = 1.0;
 	
 	/*Compute all the working error variables*/
-	error = Setpoint - Input;//proportional
+	//error = Setpoint - Input;//proportional
 	p->errSum[p->i] = error * dt;//integral
-	dInput = (Input - p->lastInput) / dt;//derivative
+	dError = (error - p->lastError) / dt;//derivative
 	
 	sum = 0.0;
 	for(j = 0; j < 8; j++) sum += p->errSum[j];//sum last i parts of intrgral.  
@@ -49,10 +48,10 @@ double Compute(PID *p, double Input, double Setpoint) {//this method must be cal
 	//printf("dt = %f\terror = %f\terrSum = %f\tdInput = %f\n", dt, error, sum, dInput);//diagnostic
 	
 	/*Compute PID Output*/
-	Output = (p->kp * error) + (p->ki * sum) - (p->kd * dInput);//sum P I and D
+	Output = (p->kp * error) + (p->ki * sum) + (p->kd * dInput);//sum P I and D
 
 	/*Remember some variables for next time*/
-	p->lastInput = Input;
+	p->lastError = error;
 	p->lastTime.tv_sec = now.tv_sec;
 	p->lastTime.tv_nsec = now.tv_nsec;	
 	p->i++;
